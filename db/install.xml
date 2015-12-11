@@ -1,0 +1,28 @@
+<XMLDB PATH="blocks/course_files_license/db"
+        VERSION="20120122"
+        COMMENT="XMLDB file for Moodle blocks/course_files_license"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:noNamespaceSchemaLocation="../../../lib/xmldb/xmldb.xsd">
+        <TABLES>
+                <TABLE NAME="block_course_files_license" COMMENT="block_course_files_license table">
+                        <FIELDS>
+                                <FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="true"/>
+                                <FIELD NAME="userid" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="false"/>
+                                <FIELD NAME="courseid" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="false"/>
+                                <FIELD NAME="resourceid" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="false"/>
+                                <FIELD NAME="resource_name" TYPE="char" LENGTH="255" NOTNULL="true" SEQUENCE="false"/>
+                                <FIELD NAME="resource_url" TYPE="char" LENGTH="255" NOTNULL="true" SEQUENCE="false"/>
+                                <FIELD NAME="resource_size" TYPE="char" LENGTH="20" NOTNULL="true" SEQUENCE="false"/>
+                                <FIELD NAME="uploaded_by" TYPE="char" LENGTH="255" NOTNULL="false" SEQUENCE="false"/>
+                                <FIELD NAME="timeuploaded" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="false"/>
+                                <FIELD NAME="timeidentified" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="false"/>
+                                <FIELD NAME="ownwork" TYPE="int" LENGTH="1" NOTNULL="true" SEQUENCE="false"/>
+                                <FIELD NAME="copyright" TYPE="int" LENGTH="1" NOTNULL="true" SEQUENCE="false"/>
+                                <FIELD NAME="authorized" TYPE="int" LENGTH="1" NOTNULL="true" SEQUENCE="false"/>
+                        </FIELDS>
+                        <KEYS>
+                                <KEY NAME="primary" TYPE="primary" FIELDS="id"/>
+                        </KEYS>
+                </TABLE>
+        </TABLES>
+</XMLDB>
