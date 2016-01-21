@@ -24,6 +24,8 @@
 
 defined('MOODLE_INTERNAL') || die();
 
+global $CFG;
+
 require_once($CFG->dirroot.'/blocks/course_files_license/locallib.php');
 
 class block_course_files_license extends block_base {
@@ -69,7 +71,37 @@ class block_course_files_license extends block_base {
         // Get the top file files used on the course by size.
         $filelist = block_course_files_license_get_coursefilelist();
         if ($filelist) {
-            $this->content->text = '<p class="justify">'.get_string('files_to_idenfity', 'block_course_files_license').'</p>';
+            if (!isset($CFG->licensefilesmodal)) {
+                $CFG->licensefilesmodal = false;
+            }
+            if ($CFG->licensefilesmodal == true) {
+                $this->content->text .= '<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.min.js"></script>';
+                $this->content->text .= '<script type="text/javascript">';
+                $this->content->text .= '        $(document).ready(function() {';
+                $this->content->text .= '          $("#modal-msg").modal("show");';
+                $this->content->text .= '        });';
+                $this->content->text .= '</script>';
+                $this->content->text .= '<div class="modal fade" id="modal-msg" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" data-backdrop="static">';
+                $this->content->text .= '  <div class="modal-dialog" role="document">';
+                $this->content->text .= '    <div class="modal-content">';
+                $this->content->text .= '      <div class="modal-header">';
+                $this->content->text .= '        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>';
+                $this->content->text .= '        <h4 class="modal-title" id="myModalLabel">'.get_string('coursefilesusagereport', 'block_course_files_license').'</h4>';
+                $this->content->text .= '      </div>';
+                $this->content->text .= '      <div class="modal-body">';
+                $this->content->text .= get_string('files_to_idenfity_modal', 'block_course_files_license');
+                $this->content->text .= '      </div>';
+                $this->content->text .= '      <div class="modal-footer">';
+                $this->content->text .= '        <a href="'.new moodle_url('/blocks/course_files_license/view.php', array('courseid' => $COURSE->id)).'" ';
+                $this->content->text .= 'class="btn btn-default">'.get_string('filelist', 'block_course_files_license').'</a>';
+                $this->content->text .= '        <button type="button" class="btn btn-primary" data-dismiss="modal">Cerrar ventana</button>';
+                $this->content->text .= '      </div>';
+                $this->content->text .= '    </div>';
+                $this->content->text .= '  </div>';
+                $this->content->text .= '</div>';
+            }
+
+            $this->content->text .= '<p class="justify">'.get_string('files_to_idenfity', 'block_course_files_license').'</p>';
             $this->content->text .= '<a class="btn btn-block btn-danger btn-sm" href="';
             $this->content->text .= new moodle_url('/blocks/course_files_license/view.php', array('courseid' => $COURSE->id)).'">';
             $this->content->text .= '<i class="fa fa-exclamation-triangle"></i> ';

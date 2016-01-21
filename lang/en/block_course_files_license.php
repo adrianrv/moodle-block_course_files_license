@@ -62,6 +62,7 @@ $string['deletefilters'] = 'Remove filters';
 $string['filename'] = 'File name';
 $string['filelist'] = 'Go to file list';
 $string['files_to_idenfity'] = 'You have some unidentified files. You have to identify them all in the identification area.';
+$string['files_to_idenfity_modal'] = $string['files_to_idenfity'].' When you are done with it this message won\'t appear again';
 $string['all_files_identified'] = 'You have already identified all files in this course.';
 $string['courses_list'] = 'Courses list';
 $string['applyfilters'] = 'Apply filters';
