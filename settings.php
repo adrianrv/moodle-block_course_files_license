@@ -17,7 +17,7 @@
 /**
  * Settings for block report page
  *
- * @package    block_course_files_license
+ * @package    block_course_files_licence
  * @copyright  2015 Adrian Rodriguez Vargas
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
@@ -27,9 +27,9 @@ global $CFG;
 if (!isset($CFG->license_ext)) {
     $CFG->license_ext = ['odt', 'doc', 'docx', 'pdf'];
 }
-
+/*
 $ADMIN->add('reports', new admin_externalpage('reportcoursefiles', get_string('coursefilesusagereport', 'block_course_files_license'),
                        new moodle_url('/blocks/course_files_license/all.php'), 'block/course_files_license:viewlist'));
 
 // No block settings.
-$settings = null;
+$settings = null;*/

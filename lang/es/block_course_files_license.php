@@ -17,7 +17,7 @@
 /**
  * Strings for component 'block_course_files_license'
  *
- * @package   block_course_files_license
+ * @package   block_course_files_licence
  * @copyright 2015 Adrian Rodriguez Vargas
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
@@ -38,6 +38,8 @@ $string['totalfilesize'] = 'Tamaño total de ficheros: {$a}';
 $string['totalsize'] = 'Tamaño total';
 $string['total_files'] = 'Total ficheros';
 $string['identified_files'] = 'Ficheros identificados';
+$string['percentage_identified'] = 'Porcentaje de ficheros identificados';
+$string['identified_files_filter'] = 'Ficheros identificados<br>que cumplen el filtro';
 $string['viewcoursefiles'] = 'Ver los ficheros con licencia del curso';
 $string['explanationmessage'] = 'A continuación debe identificar el contenido usado en este aula virtual.';
 $string['savebutton'] = 'Guardar información suministrada';
@@ -56,8 +58,12 @@ $string['operations'] = 'Operaciones';
 $string['cleanrow'] = 'Limpiar fila';
 $string['identified_by'] = 'Identificado por';
 $string['deleterecord'] = 'Eliminar registro';
+$string['deletefilters'] = 'Eliminar filtros';
 $string['filename'] = 'Nombre fichero';
 $string['filelist'] = 'Acceder al listado de ficheros';
 $string['files_to_idenfity'] = 'Tiene ficheros sin identificar. Acceda al área de identificación de licencia de ficheros a continuación.';
 $string['all_files_identified'] = 'Ya ha idenfiticado todos los archivos de este curso.';
 $string['courses_list'] = 'Listado de aulas';
+$string['applyfilters'] = 'Aplicar filtros';
+$string['filters'] = 'Filtros';
+$string['statistics'] = 'Estadísticas de la búsqueda';

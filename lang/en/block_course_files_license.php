@@ -17,7 +17,7 @@
 /**
  * Strings for component 'block_course_files_license'
  *
- * @package   block_course_files_license
+ * @package   block_course_files_licence
  * @copyright 2015 Adrian Rodriguez Vargas
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
@@ -38,6 +38,8 @@ $string['totalfilesize'] = 'Total file size: {$a}';
 $string['totalsize'] = 'Total size';
 $string['total_files'] = 'Total files';
 $string['identified_files'] = 'Identified files';
+$string['percentage_identified'] = 'Percentage of identified files';
+$string['identified_files_filter'] = 'Identified files<br>matching filter';
 $string['viewcoursefiles'] = 'View course files';
 $string['explanationmessage'] = 'Here you must identify all the content used in this course.';
 $string['savebutton'] = 'Save information supplied';
@@ -56,8 +58,12 @@ $string['operations'] = 'Operations';
 $string['cleanrow'] = 'Clean row';
 $string['identified_by'] = 'Identified by';
 $string['deleterecord'] = 'Remove record';
+$string['deletefilters'] = 'Remove filters';
 $string['filename'] = 'File name';
 $string['filelist'] = 'Go to file list';
 $string['files_to_idenfity'] = 'You have some unidentified files. You have to identify them all in the identification area.';
 $string['all_files_identified'] = 'You have already identified all files in this course.';
 $string['courses_list'] = 'Courses list';
+$string['applyfilters'] = 'Apply filters';
+$string['filters'] = 'Filters';
+$string['statistics'] = 'Statistics of search';

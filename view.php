@@ -17,7 +17,7 @@
 /**
  * Block to show course files and usage
  *
- * @package   block_course_files_license
+ * @package   block_course_files_licence
  * @copyright 2015 Adrian Rodriguez Vargas
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
@@ -102,8 +102,6 @@ $identifiedcoursefilelist = block_course_files_license_get_identifiedcoursefilel
 
 $ownwork_header  = '<div style="width:100%;text-align:center;">';
 $ownwork_header .= get_string('ownwork', 'block_course_files_license');
-$ownwork_header .= ' <a href="#" title="'.get_string('ownwork_help', 'block_course_files_license').'">';
-$ownwork_header .= '<i class="fa fa-question-circle"></i></a>';
 $ownwork_header .= '<br>(';
 $ownwork_header .= '<a href="#" onclick="';
 $ownwork_header .= ' $(\'.ownwork_yes\').prop(\'checked\', true);';
@@ -119,8 +117,6 @@ $ownwork_header .= '</div>';
 
 $copyright_header  = '<div style="width:100%;text-align:center;">';
 $copyright_header .= get_string('copyright', 'block_course_files_license');
-$copyright_header .= ' <a href="#" title="'.get_string('copyright_help', 'block_course_files_license').'">';
-$copyright_header .= '<i class="fa fa-question-circle"></i></a>';
 $copyright_header .= '<br>(';
 $copyright_header .= '<a href="#" onclick="$(\'.copyright_yes\').prop(\'checked\', true); return false;">';
 $copyright_header .= get_string('yes', 'block_course_files_license');
@@ -135,8 +131,6 @@ $copyright_header .= '</div>';
 
 $authorized_header  = '<div style="width:100%;text-align:center;">';
 $authorized_header .= get_string('authorized', 'block_course_files_license');
-$authorized_header .= ' <a href="#" title="'.get_string('authorized_help', 'block_course_files_license').'">';
-$authorized_header .= '<i class="fa fa-question-circle"></i></a>';
 $authorized_header .= '<br>(';
 $authorized_header .= '<a href="#" onclick="$(\'.authorized_yes\').prop(\'checked\', true); return false;">';
 $authorized_header .= get_string('yes', 'block_course_files_license');
@@ -302,7 +296,12 @@ echo $OUTPUT->heading($course->fullname);
 
 if ($coursefilelist) {
     echo '<p class="text-justify">';
-    echo get_string('explanationmessage', 'block_course_files_license');
+    //it is possible to override default information text by setting CFG->licensefilestextinfo 
+    if (isset($CFG->licensefilestextinfo)){
+        echo $CFG->licensefilestextinfo;
+    } else {
+        echo get_string('explanationmessage', 'block_course_files_license');
+    }
     echo '</p>';
 
     echo $OUTPUT->heading(get_string('not_identified_course_files', 'block_course_files_license'), 3, 'main');

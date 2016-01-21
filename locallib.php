@@ -17,7 +17,7 @@
 /**
  * Local lib functions
  *
- * @package    block_course_files_license
+ * @package    block_course_files_licence
  * @copyright  2015 Adrian Rodriguez Vargas, Universidad de La Laguna
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
@@ -120,7 +120,32 @@ function block_course_files_license_get_total_filesize() {
     return $sizetotal;
 }
 
-function block_course_files_license_get_all_courses() {
+function block_course_files_license_get_all_courses($ownwork, $copyright, $authorized) {
+
+    $filter_condition = "";
+    if (($ownwork != NULL) || ($copyright != NULL) || ($authorized != NULL)) {
+        $filter_condition = " AND (";
+    }
+    
+    if ($ownwork != NULL) {
+        $filter_condition .= "fl.ownwork=".$ownwork;
+    }
+    
+    if (($ownwork != NULL) && ($copyright != NULL)) {
+        $filter_condition .= " AND fl.copyright=".$copyright;
+    } elseif ($copyright != NULL) {
+        $filter_condition .= "fl.copyright=".$copyright;
+    }
+
+    if ((($copyright != NULL) && ($authorized != NULL)) || (($ownwork != NULL) && ($authorized != NULL))) {
+        $filter_condition .= " AND fl.authorized=".$authorized;
+    } elseif ($authorized != NULL) {
+        $filter_condition .= "fl.authorized=".$authorized;
+    }
+    if (($ownwork != NULL) || ($copyright != NULL) || ($authorized != NULL)) {
+        $filter_condition .= ')';
+    }
+
     global $CFG, $DB;
 
     $sql = "SELECT cm.course as courseid, c.fullname as name, count(distinct(f.id)) as num_files, count(distinct(fl.id)) as identified_files
@@ -132,6 +157,10 @@ function block_course_files_license_get_all_courses() {
             WHERE
             f.filearea <> 'submission_files' AND
             f.filename <> '.'";
+
+    if ($filter_condition != "") {
+        $sql .= $filter_condition;
+    }
 
     if ($CFG->licensefilesextensions != null ) {
         $sql .= " AND (";

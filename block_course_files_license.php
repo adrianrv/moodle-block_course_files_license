@@ -17,7 +17,7 @@
 /**
  * Block to show course files and usage
  *
- * @package   block_course_files_license
+ * @package   block_course_files_licence
  * @copyright 2015 Adrian Rodriguez Vargas
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
