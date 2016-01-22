@@ -86,7 +86,7 @@ class block_course_files_license extends block_base {
                 $this->content->text .= '    <div class="modal-content">';
                 $this->content->text .= '      <div class="modal-header">';
                 $this->content->text .= '        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>';
-                $this->content->text .= '        <h4 class="modal-title" id="myModalLabel">'.get_string('coursefilesusagereport', 'block_course_files_license').'</h4>';
+                $this->content->text .= '        <h4 class="modal-title" id="myModalLabel">'.get_string('modaltitle', 'block_course_files_license').'</h4>';
                 $this->content->text .= '      </div>';
                 $this->content->text .= '      <div class="modal-body">';
                 $this->content->text .= get_string('files_to_idenfity_modal', 'block_course_files_license');
@@ -94,7 +94,7 @@ class block_course_files_license extends block_base {
                 $this->content->text .= '      <div class="modal-footer">';
                 $this->content->text .= '        <a href="'.new moodle_url('/blocks/course_files_license/view.php', array('courseid' => $COURSE->id)).'" ';
                 $this->content->text .= 'class="btn btn-default">'.get_string('filelist', 'block_course_files_license').'</a>';
-                $this->content->text .= '        <button type="button" class="btn btn-primary" data-dismiss="modal">Cerrar ventana</button>';
+                $this->content->text .= '        <button type="button" class="btn btn-primary" data-dismiss="modal">'.get_string('close', 'block_course_files_license').'</button>';
                 $this->content->text .= '      </div>';
                 $this->content->text .= '    </div>';
                 $this->content->text .= '  </div>';

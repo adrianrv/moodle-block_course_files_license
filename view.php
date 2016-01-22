@@ -282,7 +282,7 @@ if ($identifiedcoursefilelist) {
         $delete_button .= ' style="display:none;">';
         $delete_button .= '<button type="submit" class="btn btn-xs btn-danger">';
         $delete_button .= '<i class="fa fa-trash"></i> ';
-        $delete_button .= get_string('deleterecord', 'block_course_files_license');
+        $delete_button .= get_string('modifyrecord', 'block_course_files_license');
         $delete_button .= '</button>';
         $delete_button .= '</form>';
         $row->cells[] = $delete_button;
