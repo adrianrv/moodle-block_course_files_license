@@ -17,7 +17,7 @@
 /**
  * Block to show course files and usage
  *
- * @package   block_course_files_licence
+ * @package   block_course_files_license
  * @copyright 2015 Adrian Rodriguez Vargas
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
@@ -26,7 +26,24 @@ defined('MOODLE_INTERNAL') || die();
 
 global $CFG;
 
+require_once("$CFG->libdir/adminlib.php");
 require_once($CFG->dirroot.'/blocks/course_files_license/locallib.php');
+
+class admin_setting_configtext_extensions extends admin_setting_configtext {
+    public function validate($data) {
+        $re = '([a-z]|[A-Z]|[0-9])';
+        $ext_array = explode(',', $data);
+        foreach ($ext_array as $ext) {
+            if (preg_match_all($re, $ext) != strlen(trim($ext))) {
+                return get_string('ext_validate_error', 'block_course_files_license');
+            }
+            if ($ext == '' || $ext == ' ') {
+                return get_string('ext_validate_error', 'block_course_files_license');
+            }
+        }
+        return true;
+    }
+}
 
 class block_course_files_license extends block_base {
     function init() {
@@ -69,7 +86,7 @@ class block_course_files_license extends block_base {
         $contextcheck = $context->path . '/%';
 
         // Get the top file files used on the course by size.
-        $filelist = block_course_files_license_get_coursefilelist();
+        $filelist = get_course_files_list();
         if ($filelist) {
             if (!isset($CFG->licensefilesmodal)) {
                 $CFG->licensefilesmodal = false;

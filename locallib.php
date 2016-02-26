@@ -17,18 +17,36 @@
 /**
  * Local lib functions
  *
- * @package    block_course_files_licence
+ * @package    block_course_files_license
  * @copyright  2015 Adrian Rodriguez Vargas, Universidad de La Laguna
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
 defined('MOODLE_INTERNAL') || die();
 
-function block_course_files_license_get_coursefilelist($limit=0) {
+function block_course_files_license_get_licenses() {
+
+}
+
+// Get the sortorder field of the last item
+function get_last_license_position () {
+    global $DB;
+    $sql = "SELECT *
+            FROM {block_course_files_license_l} order by sortorder DESC limit 1";
+    $last_license = $DB->get_records_sql($sql, $params=null);
+    if (count($last_license) > 0) {
+        return reset($last_license)->sortorder;
+    } else {
+        return null;
+    }
+}
+
+function get_course_files_list($limit=0) {
     global $CFG, $COURSE, $DB;
 
-    if (!isset($CFG->licensefilesextensions)) {
-        $CFG->licensefilesextensions = array();
+    $extensions = '';
+    if (isset($CFG->block_course_files_license_extensions)) {
+        $extensions = explode(',', $CFG->block_course_files_license_extensions);
     }
 
     $context = context_course::instance($COURSE->id);
@@ -51,15 +69,15 @@ function block_course_files_license_get_coursefilelist($limit=0) {
                 AND f.filearea <> 'submission_files'
                 AND f.component NOT IN ('private','draft')
                 AND f.id not in (SELECT resourceid
-                                       FROM {block_course_files_license}
+                                       FROM {block_course_files_license_f}
                                        WHERE courseid=".$COURSE->id.")";
 
-    if ($CFG->licensefilesextensions != null ) {
+    if ($extensions != '' ) {
         $sql .= " AND (";
     }
-    $extensions_len = count($CFG->licensefilesextensions);
+    $extensions_len = count($extensions);
     $i = 0;
-    foreach ($CFG->licensefilesextensions as $ext) {
+    foreach ($extensions as $ext) {
         $sql .= " f.filename LIKE '%".$ext."'";
         $i++;
         if ($i < $extensions_len) {
@@ -75,15 +93,15 @@ function block_course_files_license_get_coursefilelist($limit=0) {
 }
 
 //Get course files with already identified license
-function block_course_files_license_get_identifiedcoursefilelist($limit=0) {
-    global $USER, $COURSE, $DB;
+function get_identified_course_files_list($limit=0) {
+    global $COURSE, $DB;
 
     //$context = context_course::instance($COURSE->id);
     //$contextcheck = $context->path . '/%';
 
     // Get the files used on the course by size.
     $sql = "SELECT *
-            FROM {block_course_files_license} f
+            FROM {block_course_files_license_f} f
             WHERE courseid=".$COURSE->id." ORDER BY timeuploaded ASC";
     $identifiedcoursefilelist = $DB->get_records_sql($sql, $params=null, 0, $limit);
 
@@ -91,16 +109,17 @@ function block_course_files_license_get_identifiedcoursefilelist($limit=0) {
 }
 
 //Get identified course files that have been deleted from the course
-function block_course_files_license_get_unavailable_identifiedcoursefilelist($limit=0) {
-    global $USER, $COURSE, $DB;
+function delete_unavailable_files($limit=0) {
+    global $DB;
     
     $sql = "SELECT *
-            FROM {block_course_files_license}
+            FROM {block_course_files_license_f}
             where resourceid not in (SELECT id FROM {files})";
 
-    $identifiedcoursefilelist = $DB->get_records_sql($sql, $params=null, 0, $limit);
-
-    return $identifiedcoursefilelist;
+    $unavailable_files = $DB->get_records_sql($sql, $params=null, 0, $limit);
+    foreach ($unavailable_files as $identified_id => $identified_resource) {
+        $DB->delete_records('block_course_files_license_f', array ('id'=>$identified_id));
+    }
 }
 
 function block_course_files_license_get_total_filesize() {
@@ -153,7 +172,7 @@ function block_course_files_license_get_all_courses($ownwork, $copyright, $autho
             JOIN {context} cx ON f.contextid = cx.id
             JOIN {course_modules} cm ON cx.instanceid=cm.id
             JOIN {course} c ON cm.course=c.id
-            LEFT OUTER JOIN {block_course_files_license} fl ON c.id=fl.courseid
+            LEFT OUTER JOIN {block_course_files_license_f} fl ON c.id=fl.courseid
             WHERE
             f.filearea <> 'submission_files' AND
             f.filename <> '.'";

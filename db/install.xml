@@ -4,7 +4,7 @@
         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
         xsi:noNamespaceSchemaLocation="../../../lib/xmldb/xmldb.xsd">
         <TABLES>
-                <TABLE NAME="block_course_files_license" COMMENT="block_course_files_license table">
+                <TABLE NAME="block_course_files_license_f" COMMENT="block_course_files_license identified files table">
                         <FIELDS>
                                 <FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="true"/>
                                 <FIELD NAME="userid" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="false"/>
@@ -16,13 +16,26 @@
                                 <FIELD NAME="uploaded_by" TYPE="char" LENGTH="255" NOTNULL="false" SEQUENCE="false"/>
                                 <FIELD NAME="timeuploaded" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="false"/>
                                 <FIELD NAME="timeidentified" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="false"/>
-                                <FIELD NAME="ownwork" TYPE="int" LENGTH="1" NOTNULL="true" SEQUENCE="false"/>
-                                <FIELD NAME="copyright" TYPE="int" LENGTH="1" NOTNULL="true" SEQUENCE="false"/>
-                                <FIELD NAME="authorized" TYPE="int" LENGTH="1" NOTNULL="true" SEQUENCE="false"/>
+                                <FIELD NAME="license" TYPE="int" LENGTH="1" NOTNULL="true" SEQUENCE="false"/>
+                                <FIELD NAME="cite" TYPE="text" LENGTH="medium" NOTNULL="true" SEQUENCE="false"/>
                         </FIELDS>
                         <KEYS>
                                 <KEY NAME="primary" TYPE="primary" FIELDS="id"/>
                         </KEYS>
+                </TABLE>
+                <TABLE NAME="block_course_files_license_l" COMMENT="block_course_files_license licenses table">
+                        <FIELDS>
+                                <FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="true"/>
+                                <FIELD NAME="name" TYPE="char" LENGTH="50" NOTNULL="true" SEQUENCE="false"/>
+                                <FIELD NAME="description" TYPE="text" LENGTH="medium" NOTNULL="true" SEQUENCE="false"/>
+                                <FIELD NAME="sortorder" TYPE="int" LENGTH="3" NOTNULL="false" SEQUENCE="false"/>
+                        </FIELDS>
+                        <KEYS>
+                                <KEY NAME="primary" TYPE="primary" FIELDS="id"/>
+                        </KEYS>
+                        <INDEXES>
+                                <INDEX NAME="name" UNIQUE="true" FIELDS="name"/>
+                        </INDEXES>
                 </TABLE>
         </TABLES>
 </XMLDB>

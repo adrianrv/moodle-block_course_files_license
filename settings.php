@@ -15,21 +15,27 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * Settings for block report page
+ * Settings for block
  *
- * @package    block_course_files_licence
- * @copyright  2015 Adrian Rodriguez Vargas
- * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ * @package   block_course_files_licence
+ * @copyright 2016 Adrian Rodriguez Vargas
+ * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
 defined('MOODLE_INTERNAL') || die();
-global $CFG;
-if (!isset($CFG->license_ext)) {
-    $CFG->license_ext = ['odt', 'doc', 'docx', 'pdf'];
-}
-/*
-$ADMIN->add('reports', new admin_externalpage('reportcoursefiles', get_string('coursefilesusagereport', 'block_course_files_license'),
-                       new moodle_url('/blocks/course_files_license/all.php'), 'block/course_files_license:viewlist'));
 
-// No block settings.
-$settings = null;*/
+global $CFG;
+
+if ($ADMIN->fulltree) {
+    $settings->add(new admin_setting_configtext_extensions('block_course_files_license_extensions', get_string('extensions', 'block_course_files_license'),
+        get_string('extensionsconfig', 'block_course_files_license'), 'pdf, odt, doc, docx, xls, xlsx', PARAM_TEXT));
+
+    $settings->add(new admin_setting_configcheckbox('block_course_files_license_popup', new lang_string('popup', 'block_course_files_license'),
+        new lang_string('popupconfig', 'block_course_files_license'), 1));
+
+    $link_manage_licenses ='<a href="'.$CFG->wwwroot.'/blocks/course_files_license/managelicenses.php">'.get_string('managelicenses', 'block_course_files_license').'</a>';
+    $settings->add(new admin_setting_heading('course_files_license_manage_licenses', '', $link_manage_licenses));
+
+    $link_overview ='<a href="'.$CFG->wwwroot.'/blocks/course_files_license/all.php">'.get_string('coursesoverview', 'block_course_files_license').'</a>';
+    $settings->add(new admin_setting_heading('course_files_license_overview', '', $link_overview));
+}

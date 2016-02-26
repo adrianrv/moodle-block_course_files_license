@@ -17,7 +17,7 @@
 /**
  * Strings for component 'block_course_files_license'
  *
- * @package   block_course_files_licence
+ * @package   block_course_files_license
  * @copyright 2015 Adrian Rodriguez Vargas
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
@@ -45,17 +45,23 @@ $string['explanationmessage'] = 'Here you must identify all the content used in 
 $string['savebutton'] = 'Save information supplied';
 $string['not_identified_course_files'] = 'Not identified course documents';
 $string['identified_course_files'] = 'Already identified documents';
+
 $string['ownwork'] = 'Own work';
-$string['ownwork_help'] = 'Whenever the file has been made by you or a course mate';
+$string['open_license'] = 'Open license';
+$string['available_with_license'] = 'Available with rights';
+$string['copyright_other_university'] = 'Copyright other University';
+
+$string['mark_all'] = 'Mark all';
+
 $string['copyright'] = 'Copyright';
-$string['copyright_help'] = 'Whenever the file is not yours and it has copyright';
-$string['authorized'] = 'Authorized';
-$string['authorized_help'] = 'Whenever the work is not yours but you have the authorization to use it';
 $string['yes'] = 'Yes';
 $string['no'] = 'No';
+$string['unknown'] = 'Unknown';
 $string['dkna'] = 'DK-NA';
 $string['operations'] = 'Operations';
 $string['cleanrow'] = 'Clean row';
+$string['cite'] = 'Cite';
+$string['show_cite'] = 'Show cite';
 $string['identified_by'] = 'Identified by';
 $string['modifyrecord'] = 'Modify record';
 $string['deletefilters'] = 'Remove filters';
@@ -70,3 +76,22 @@ $string['courses_list'] = 'Courses list';
 $string['applyfilters'] = 'Apply filters';
 $string['filters'] = 'Filters';
 $string['statistics'] = 'Statistics of search';
+$string['resource_cite'] = 'Resource cite';
+$string['extensions'] = 'Extensions';
+$string['extensionsconfig'] = 'Files extensions that have to be identified. Comma separated format.';
+$string['ext_validate_error'] = 'Error, you have to write extensions in comma separated format.';
+$string['popup'] = 'Pop up window';
+$string['popupconfig'] = 'Whenever a pop up window must appear when there are file not identified.';
+$string['license'] = 'License';
+$string['managelicenses'] = 'Manage licenses';
+$string['coursesoverview'] = 'Courses overview';
+$string['addnewlicense'] = 'Add new license';
+$string['licensedeleted'] = 'License deleted';
+$string['license_name'] = 'License name';
+$string['license_name_duplicated'] = 'There is already a license with this name';
+$string['license_name_help'] = 'Text that will appear in the header of the license table selection';
+$string['license_description'] = 'Description';
+$string['addnewlicense'] = 'Add new license';
+$string['editalicense'] = 'Edit license';
+$string['deletelicenseconfirm'] = 'Are you sure you want to delete this license. All identification asosiated with this license will be removed too.';
+$string['nolicensesavailables'] = 'Error in block configuration (no licenses availables). Contact with the administrator';  

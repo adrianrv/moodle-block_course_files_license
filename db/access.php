@@ -43,6 +43,19 @@ $capabilities = array(
             'manager' => CAP_ALLOW
         )
     ),
+    
+    'block/course_files_license:managelicenses' => array(
+        'riskbitmask' => RISK_SPAM | RISK_XSS,
+
+        'captype' => 'write',
+        'contextlevel' => CONTEXT_BLOCK,
+        'archetypes' => array(
+            'editingteacher' => CAP_ALLOW,
+            'manager' => CAP_ALLOW
+        ),
+
+        'clonepermissionsfrom' => 'moodle/site:manageblocks'
+    ),
 
     'block/course_files_license:addinstance' => array(
         'riskbitmask' => RISK_SPAM | RISK_XSS,

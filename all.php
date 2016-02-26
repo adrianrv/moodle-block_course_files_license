@@ -40,10 +40,13 @@ require_capability('block/course_files_license:viewall', $context);
 require_capability('block/course_files_license:deleteinstance', $context);
 // First of all we need to find those resources already identified that user has deleted
 // on this course, so we delete it from the identified course file list
+delete_unavailable_files();
+/*
 $unavailable_identifiedcoursefilelist = block_course_files_license_get_unavailable_identifiedcoursefilelist();
 foreach ($unavailable_identifiedcoursefilelist as $identified_id => $identified_resource) {
     $DB->delete_records('block_course_files_license', array ('id'=>$identified_id));
 }
+*/
 
 // check if the get variables passed exists and have the correct values
 if(array_key_exists('ownwork', $_GET)) {

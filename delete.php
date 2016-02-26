@@ -33,8 +33,8 @@ $course = $DB->get_record('course', array('id' => $courseid));
 $context = context_course::instance($courseid);
 require_capability('block/course_files_license:viewlist', $context);
 
-$coursefilelist = block_course_files_license_get_coursefilelist();
-$identifiedcoursefilelist = block_course_files_license_get_identifiedcoursefilelist();
+$coursefilelist = get_course_files_list();
+$identifiedcoursefilelist = get_identified_course_files_list();
 
 $file_instances = [];
 foreach ($identifiedcoursefilelist as $f_id => $f_value) {
@@ -44,7 +44,7 @@ foreach ($identifiedcoursefilelist as $f_id => $f_value) {
 if ($_POST) {
     require_capability('block/course_files_license:deleteinstance', $context);
     if (in_array('id', array_keys($_POST))) {
-        $DB->delete_records('block_course_files_license', array ('id'=>$_POST['id']));
+        $DB->delete_records('block_course_files_license_f', array ('id'=>$_POST['id']));
     }
 }
 

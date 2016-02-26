@@ -17,7 +17,7 @@
 /**
  * Block to show course files and usage
  *
- * @package   block_course_files_licence
+ * @package   block_course_files_license
  * @copyright 2015 Adrian Rodriguez Vargas
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
@@ -26,6 +26,15 @@ require('../../config.php');
 require_once($CFG->dirroot.'/blocks/course_files_license/locallib.php');
 
 require_login();
+
+global $CFG;
+
+// Verify entries in table block_course_files_license_l
+//$licenses = $DB->get_records_select('block_course_files_license_l', $select, null, $DB->sql_order_by_text('sortorder'));
+$licenses = $DB->get_records('block_course_files_license_l', null, $sort='sortorder');
+if (!$licenses) {
+    die(get_string('nolicensesavailables', 'block_course_files_license'));
+}
 
 $courseid = required_param('courseid', PARAM_INT); // If no courseid is given.
 $course = $DB->get_record('course', array('id' => $courseid));
@@ -37,23 +46,20 @@ $PAGE->set_title($course->fullname.' '.get_string('files'));
 $PAGE->set_heading($course->fullname);
 $PAGE->set_pagelayout('course');
 $PAGE->navbar->add(get_string('pluginname', 'block_course_files_license'));
+$PAGE->navbar->add(get_string('pluginname', 'block_course_files_license'));
 
 require_capability('block/course_files_license:viewlist', $context);
 
-// First of all we need to find those resources already identified that user has deleted
-// on this course, so we delete it from the identified course file list
+// Cleaning table 'block_course_files_license_f': delete all files that have
+// been already identified but later those files have been deleted. So they
+// do not have to be stored.
 require_capability('block/course_files_license:deleteinstance', $context);
-$unavailable_identifiedcoursefilelist = block_course_files_license_get_unavailable_identifiedcoursefilelist();
-foreach ($unavailable_identifiedcoursefilelist as $identified_id => $identified_resource) {
-    $DB->delete_records('block_course_files_license', array ('id'=>$identified_id));
-}
-
+delete_unavailable_files();
 
 if ($_POST) {
-
     // When a post request is received we get all resources of this course to be ensure
     // that the resources we are going to save are really resources of this course
-    $coursefilelist_beforesave = block_course_files_license_get_coursefilelist();
+    $coursefilelist_beforesave = get_course_files_list();
     $file_instances = [];
     foreach ($coursefilelist_beforesave as $f_id => $f_value) {
         $file_instances[]=$f_value->id;
@@ -63,32 +69,35 @@ if ($_POST) {
     // course and then save it
     require_capability('block/course_files_license:addinstance', $context);
     foreach ($_POST as $resource_id => $resource_values) {
-        // Validate if every post object we receive are valid file instances
-        if (in_array($resource_id, $file_instances)) {
-            //save the item
-            $record = new stdClass();
-            $record->userid = $USER->id;
-            $record->courseid = $courseid;
-            $record->resourceid = $resource_id;
-            $record->resource_name = $coursefilelist_beforesave[$resource_id]->filename;
+        // We will look only in items received with at least 'license' key
+        if (in_array('license', array_keys($resource_values))) { 
 
-            $resource_url  = '/pluginfile.php/'.$coursefilelist_beforesave[$resource_id]->contextid;
-            $resource_url .= '/'.$coursefilelist_beforesave[$resource_id]->component;
-            $resource_url .= '/'.$coursefilelist_beforesave[$resource_id]->filearea;
-            $resource_url .= '/'.$coursefilelist_beforesave[$resource_id]->itemid;
-            $resource_url .= $coursefilelist_beforesave[$resource_id]->filepath;
-            $resource_url .= $coursefilelist_beforesave[$resource_id]->filename;
-            $record->resource_url = $resource_url;
-            $record->resource_size = $coursefilelist_beforesave[$resource_id]->filesize;
+            // Now we need to verify if the received item has a valid file instances asociated
+            if (in_array($resource_id, $file_instances)) {
+                //save the item
+                $record = new stdClass();
+                $record->userid = $USER->id;
+                $record->courseid = $courseid;
+                $record->resourceid = $resource_id;
+                $record->resource_name = $coursefilelist_beforesave[$resource_id]->filename;
 
-            $record->uploaded_by = $coursefilelist_beforesave[$resource_id]->author;
-            $record->timeuploaded = $coursefilelist_beforesave[$resource_id]->timecreated;
-            $now=new DateTime();
-            $record->timeidentified = $now->getTimestamp();
-            $record->ownwork = $resource_values['ownwork'];
-            $record->copyright = $resource_values['copyright'];
-            $record->authorized = $resource_values['authorized'];
-            $DB->insert_record('block_course_files_license', $record, false);
+                $resource_url  = '/pluginfile.php/'.$coursefilelist_beforesave[$resource_id]->contextid;
+                $resource_url .= '/'.$coursefilelist_beforesave[$resource_id]->component;
+                $resource_url .= '/'.$coursefilelist_beforesave[$resource_id]->filearea;
+                $resource_url .= '/'.$coursefilelist_beforesave[$resource_id]->itemid;
+                $resource_url .= $coursefilelist_beforesave[$resource_id]->filepath;
+                $resource_url .= $coursefilelist_beforesave[$resource_id]->filename;
+                $record->resource_url = $resource_url;
+                $record->resource_size = $coursefilelist_beforesave[$resource_id]->filesize;
+
+                $record->uploaded_by = $coursefilelist_beforesave[$resource_id]->author;
+                $record->timeuploaded = $coursefilelist_beforesave[$resource_id]->timecreated;
+                $now=new DateTime();
+                $record->timeidentified = $now->getTimestamp();
+                $record->license = $resource_values['license'];
+                $record->cite = $resource_values['cite'];
+                $DB->insert_record('block_course_files_license_f', $record, false);
+            }
         }
 
     }
@@ -96,54 +105,9 @@ if ($_POST) {
 
 // After handling the post request (if it was a post request)
 // we make the query again, so the resourses already saved will not be on the list
-$coursefilelist = block_course_files_license_get_coursefilelist();
+$coursefilelist = get_course_files_list();
 
-$identifiedcoursefilelist = block_course_files_license_get_identifiedcoursefilelist();
-
-$ownwork_header  = '<div style="width:100%;text-align:center;">';
-$ownwork_header .= get_string('ownwork', 'block_course_files_license');
-$ownwork_header .= '<br>(';
-$ownwork_header .= '<a href="#" onclick="';
-$ownwork_header .= ' $(\'.ownwork_yes\').prop(\'checked\', true);';
-$ownwork_header .= ' return false">';
-$ownwork_header .= get_string('yes', 'block_course_files_license');
-$ownwork_header .= '</a> / ';
-$ownwork_header .= '<a href="#" onclick="';
-$ownwork_header .= ' $(\'.ownwork_no\').prop(\'checked\', true);';
-$ownwork_header .= ' return false">';
-$ownwork_header .= get_string('no', 'block_course_files_license');
-$ownwork_header .= '</a>)';
-$ownwork_header .= '</div>';
-
-$copyright_header  = '<div style="width:100%;text-align:center;">';
-$copyright_header .= get_string('copyright', 'block_course_files_license');
-$copyright_header .= '<br>(';
-$copyright_header .= '<a href="#" onclick="$(\'.copyright_yes\').prop(\'checked\', true); return false;">';
-$copyright_header .= get_string('yes', 'block_course_files_license');
-$copyright_header .= '</a> / ';
-$copyright_header .= '<a href="#" onclick="$(\'.copyright_no\').prop(\'checked\', true); return false;">';
-$copyright_header .= get_string('no', 'block_course_files_license');
-$copyright_header .= '</a> / ';
-$copyright_header .= '<a href="#" onclick="$(\'.copyright_dkna\').prop(\'checked\', true); return false;">';
-$copyright_header .= get_string('dkna', 'block_course_files_license');
-$copyright_header .= '</a>)';
-$copyright_header .= '</div>';
-
-$authorized_header  = '<div style="width:100%;text-align:center;">';
-$authorized_header .= get_string('authorized', 'block_course_files_license');
-$authorized_header .= '<br>(';
-$authorized_header .= '<a href="#" onclick="$(\'.authorized_yes\').prop(\'checked\', true); return false;">';
-$authorized_header .= get_string('yes', 'block_course_files_license');
-$authorized_header .= '</a> / ';
-$authorized_header .= '<a href="#" onclick="$(\'.authorized_no\').prop(\'checked\', true); return false;">';
-$authorized_header .= get_string('no', 'block_course_files_license');
-$authorized_header .= '</a> / ';
-$authorized_header .= '<a href="#" onclick="$(\'.authorized_dkna\').prop(\'checked\', true); return false;">';
-$authorized_header .= get_string('dkna', 'block_course_files_license');
-$authorized_header .= '</a>)';
-$authorized_header .= '</div>';
-
-$operations_header = get_string('operations', 'block_course_files_license');
+$identifiedfileslist = get_identified_course_files_list();
 
 $table = new html_table();
 $table->attributes = array('style' => 'font-size: 80%;');
@@ -151,154 +115,163 @@ $table->head = array(
     get_string('timecreated', 'block_course_files_license'),
     get_string('filename', 'block_course_files_license'),
     get_string('uploaded_by', 'block_course_files_license'),
-    $ownwork_header,
-    $copyright_header,
-    $authorized_header,
-    $operations_header
 );
+
+foreach ($licenses as $l) {
+    $header  = '<div style="width:100%;text-align:center;">';
+    $header .= '(<a href="#" onclick="';
+    $header .= ' $(\'.'.$l->id.'\').prop(\'checked\', true);';
+    $header .= ' return false">';
+    $header .= get_string('mark_all', 'block_course_files_license');
+    $header .= '</a>)<br>';
+    $header .= $l->name;
+    $header .= '</div>';
+    array_push($table->head, $header);
+}
+array_push($table->head, get_string('operations', 'block_course_files_license'));
 
 foreach ($coursefilelist as $coursefile) {
 
     $filename_cell = '<a href="'.$CFG->wwwroot.'/pluginfile.php/'.$coursefile->contextid.'/'.$coursefile->component.'/'.$coursefile->filearea.'/'.$coursefile->itemid.$coursefile->filepath.$coursefile->filename.'">';
     $filename_cell .= $coursefile->filename.'</a> ('.display_size($coursefile->filesize).')';
 
-    $ownwork_cell  = '<div style="width:100%;text-align:center">';
-    $ownwork_cell .= '<input type="radio" class="ownwork_yes"';
-    $ownwork_cell .= ' name="'.$coursefile->id.'[ownwork]"';
-    $ownwork_cell .= ' id="'.$courseid.'_'.$coursefile->id.'_ownwork_yes"';
-    $ownwork_cell .= ' value="1" title="'.get_string('yes', 'block_course_files_license').'"> ';
-
-    $ownwork_cell .= '<input type="radio" class="ownwork_no"';
-    $ownwork_cell .= ' name="'.$coursefile->id.'[ownwork]"';
-    $ownwork_cell .= ' id="'.$courseid.'_'.$coursefile->id.'_ownwork_no"';
-    $ownwork_cell .= ' value="0" title="'.get_string('no', 'block_course_files_license').'">';
-
-    $ownwork_cell .= '</div>';
-
-    $copyright_cell  = '<div style="width:100%;text-align:center">';
-    $copyright_cell .= '<input type="radio" class="copyright_yes"';
-    $copyright_cell .= ' name="'.$coursefile->id.'[copyright]"';
-    $copyright_cell .= ' id="'.$courseid.'_'.$coursefile->id.'_copyright_yes"';
-    $copyright_cell .= ' value="1" title="'.get_string('yes', 'block_course_files_license').'"> ';
-    $copyright_cell .= '<input type="radio" class="copyright_no"';
-    $copyright_cell .= ' name="'.$coursefile->id.'[copyright]"';
-    $copyright_cell .= ' id="'.$courseid.'_'.$coursefile->id.'_copyright_no"';
-    $copyright_cell .= ' value="0" title="'.get_string('no', 'block_course_files_license').'"> ';
-    $copyright_cell .= '<input type="radio" class="copyright_dkna"';
-    $copyright_cell .= ' name="'.$coursefile->id.'[copyright]"';
-    $copyright_cell .= ' id="'.$courseid.'_'.$coursefile->id.'_copyright_dkna"';
-    $copyright_cell .= ' value="-1" title="'.get_string('dkna', 'block_course_files_license').'"> ';
-    $copyright_cell .= '</div>';
-
-    $authorized_cell  = '<div style="width:100%;text-align:center">';
-    $authorized_cell .= '<input type="radio" class="authorized_yes"';
-    $authorized_cell .= ' name="'.$coursefile->id.'[authorized]"';
-    $authorized_cell .= ' id="'.$courseid.'_'.$coursefile->id.'_authorized_yes"';
-    $authorized_cell .= ' value="1" title="'.get_string('yes', 'block_course_files_license').'"> ';
-    $authorized_cell .= '<input type="radio" class="authorized_no"';
-    $authorized_cell .= ' name="'.$coursefile->id.'[authorized]"';
-    $authorized_cell .= ' id="'.$courseid.'_'.$coursefile->id.'_authorized_no"';
-    $authorized_cell .= ' value="0" title="'.get_string('no', 'block_course_files_license').'"> ';
-    $authorized_cell .= '<input type="radio" class="authorized_dkna"';
-    $authorized_cell .= ' name="'.$coursefile->id.'[authorized]"';
-    $authorized_cell .= ' id="'.$courseid.'_'.$coursefile->id.'_authorized_dkna"';
-    $authorized_cell .= ' value="-1" title="'.get_string('dkna', 'block_course_files_license').'"> ';
-    $authorized_cell .= '</div>';
+    $cite_cell = '<textarea class="form-control" rows=3" id="'.$courseid.'_'.$coursefile->id.'_cite" name="'.$coursefile->id.'[cite]" placeholder="'.get_string('resource_cite', 'block_course_files_license').'" style="margin-bottom:20px;"></textarea>';
 
     $operations_cell  = '<a href="#" onclick="';
-    $operations_cell .= ' $(\'#'.$courseid.'_'.$coursefile->id.'_ownwork_yes\').prop(\'checked\', false);';
-    $operations_cell .= ' $(\'#'.$courseid.'_'.$coursefile->id.'_ownwork_no\').prop(\'checked\', false);';
-    $operations_cell .= ' $(\'#'.$courseid.'_'.$coursefile->id.'_copyright_yes\').prop(\'checked\', false);';
-    $operations_cell .= ' $(\'#'.$courseid.'_'.$coursefile->id.'_copyright_no\').prop(\'checked\', false);';
-    $operations_cell .= ' $(\'#'.$courseid.'_'.$coursefile->id.'_copyright_dkna\').prop(\'checked\', false);';
-    $operations_cell .= ' $(\'#'.$courseid.'_'.$coursefile->id.'_authorized_yes\').prop(\'checked\', false);';
-    $operations_cell .= ' $(\'#'.$courseid.'_'.$coursefile->id.'_authorized_no\').prop(\'checked\', false);';
-    $operations_cell .= ' $(\'#'.$courseid.'_'.$coursefile->id.'_authorized_dkna\').prop(\'checked\', false);';
+    
+    foreach ($licenses as $l) {
+        $operations_cell .= ' $(\'#'.$courseid.'_'.$coursefile->id.'_'.$l->id.'\').prop(\'checked\', false);';
+    }
+    $operations_cell .= ' $(\'#'.$courseid.'_'.$coursefile->id.'_cite\').val(\'\');';
     $operations_cell .= ' return false;"';
-    $operations_cell .= ' class="btn btn-xs btn-danger">';
-    $operations_cell .= '<i class="fa fa-trash"></i> '.get_string('cleanrow', 'block_course_files_license').'</a>';
+    $operations_cell .= ' class="btn btn-xs btn-danger" style="margin-bottom:5px;width:100%;text-align:center;" title="'.get_string('cleanrow', 'block_course_files_license').'">';
+    $operations_cell .= '<i class="fa fa-trash"></i> '.get_string('cleanrow', 'block_course_files_license').'</a><br>';
+    $operations_cell .= ' <a href="#" onclick="$(\'#'.$courseid.'_'.$coursefile->id.'_cite_cell\').toggle();return false;"';
+    $operations_cell .= ' class="btn btn-xs btn-primary" style="margin-bottom:5px;width:100%;text-align:center;" title="'.get_string('resource_cite', 'block_course_files_license').'">';
+    $operations_cell .= '<i class="fa fa-pencil"></i> '.get_string('cite','block_course_files_license').'</a>';
 
     $row = new html_table_row();
     $row->cells[] = date('d/m/y', $coursefile->timecreated);
     $row->cells[] = $filename_cell;
     $row->cells[] = $coursefile->author;
-    $row->cells[] = $ownwork_cell; 
-    $row->cells[] = $copyright_cell;
-    $row->cells[] = $authorized_cell;
+
+    foreach ($licenses as $l) {
+        $new_cell  = '<div style="width:100%;text-align:center">';
+        $new_cell .= '<input type="radio" class="'.$l->id.'"';
+        $new_cell .= ' name="'.$coursefile->id.'[license]"';
+        $new_cell .= ' id="'.$courseid.'_'.$coursefile->id.'_'.$l->id.'"';
+        $new_cell .= ' value="'.$l->id.'" title="'.$l->name.'"> ';
+        $new_cell .= '</div>';
+        $row->cells[] = $new_cell; 
+    }
+
     $row->cells[] = $operations_cell;
+    $table->data[] = $row;
+    
+    // license cite text area (optional)
+    $row = new html_table_row();
+    $cell_cite = new html_table_cell();
+    $cell_cite->colspan = 10;
+    $cell_cite->id = $courseid.'_'.$coursefile->id.'_cite_cell';
+    $cell_cite->style = 'display:none;';
+    $cell_cite->text = $cite_cell;
+    $row->cells[] = $cell_cite;
     $table->data[] = $row;
 }
 
-if ($identifiedcoursefilelist) {
+if ($identifiedfileslist) {
+
+    //echo '<h1>identifiedfileslist</h1>';
+    //echo '<pre>';
+    //print_r($identifiedfileslist);
+    //echo '</pre>';
+
+
     $identified_table = new html_table();
     $identified_table->attributes = array('style' => 'font-size: 80%;');
     $identified_table->head = array(
         get_string('timeuploaded', 'block_course_files_license'),
         get_string('filename', 'block_course_files_license'),
         get_string('uploaded_by', 'block_course_files_license'),
-        get_string('ownwork', 'block_course_files_license'),
         get_string('copyright', 'block_course_files_license'),
-        get_string('authorized', 'block_course_files_license'),
         get_string('timeidentified', 'block_course_files_license'),
         get_string('identified_by', 'block_course_files_license'),
-        $operations_header
+        get_string('operations', 'block_course_files_license')
     );
     
-    foreach ($identifiedcoursefilelist as $identifiedcoursefile) {
+    foreach ($identifiedfileslist as $identifiedfile_id=>$identifiedfile) {
         $row = new html_table_row();
-        $row->cells[] = date('d/m/y', $identifiedcoursefile->timeuploaded);
-        $filename_cell  = '<a href="'.$CFG->wwwroot.$identifiedcoursefile->resource_url.'">';
-        $filename_cell .= $identifiedcoursefile->resource_name.'</a>';
-        $filename_cell .= ' ('.display_size($identifiedcoursefile->resource_size).')';
+        $row->cells[] = date('d/m/y', $identifiedfile->timeuploaded);
+        $filename_cell  = '<a href="'.$CFG->wwwroot.$identifiedfile->resource_url.'">';
+        $filename_cell .= $identifiedfile->resource_name.'</a>';
+        $filename_cell .= ' ('.display_size($identifiedfile->resource_size).')';
         $row->cells[] = $filename_cell;
-        $row->cells[] = $identifiedcoursefile->uploaded_by;
-        if ($identifiedcoursefile->ownwork == 0) {
-            $row->cells[] = get_string('no', 'block_course_files_license');
-        } elseif ($identifiedcoursefile->ownwork == 1) {
-            $row->cells[] = get_string('yes', 'block_course_files_license');
-        } elseif ($identifiedcoursefile->ownwork == -1) {
-            $row->cells[] = get_string('dkna', 'block_course_files_license');
-        }
-        if ($identifiedcoursefile->copyright == 0) {
-            $row->cells[] = get_string('no', 'block_course_files_license');
-        } elseif ($identifiedcoursefile->copyright == 1) {
-            $row->cells[] = get_string('yes', 'block_course_files_license');
-        } elseif ($identifiedcoursefile->copyright == -1) {
-            $row->cells[] = get_string('dkna', 'block_course_files_license');
-        }
-        if ($identifiedcoursefile->authorized == 0) {
-            $row->cells[] = get_string('no', 'block_course_files_license');
-        } elseif ($identifiedcoursefile->authorized == 1) {
-            $row->cells[] = get_string('yes', 'block_course_files_license');
-        } elseif ($identifiedcoursefile->authorized == -1) {
-            $row->cells[] = get_string('dkna', 'block_course_files_license');
-        }
-        $row->cells[] = date('d/m/y', $identifiedcoursefile->timeidentified);
-        $uploaded_by_user = $DB->get_record('user', array('id' => $identifiedcoursefile->userid));
+        $row->cells[] = $identifiedfile->uploaded_by;
+        $row->cells[] = $licenses[$identifiedfile->license]->name;
+        $row->cells[] = date('d/m/y', $identifiedfile->timeidentified);
+        $uploaded_by_user = $DB->get_record('user', array('id' => $identifiedfile->userid));
         $row->cells[] = $uploaded_by_user->firstname.' '.$uploaded_by_user->lastname;
-        $delete_button  = '<form action="'.new moodle_url('/blocks/course_files_license/delete.php?courseid='.$courseid).'" method="POST">';
-        $delete_button .= '<input type="radio" value="'.$identifiedcoursefile->id.'" checked="1" name="id"';
-        $delete_button .= ' id="'.$identifiedcoursefile->id.'" value="'.$identifiedcoursefile->id.'"';
-        $delete_button .= ' style="display:none;">';
-        $delete_button .= '<button type="submit" class="btn btn-xs btn-danger">';
-        $delete_button .= '<i class="fa fa-trash"></i> ';
-        $delete_button .= get_string('modifyrecord', 'block_course_files_license');
-        $delete_button .= '</button>';
-        $delete_button .= '</form>';
-        $row->cells[] = $delete_button;
+
+        $form_actions  = '<form action="'.new moodle_url('/blocks/course_files_license/delete.php?courseid='.$courseid).'" method="POST">';
+        
+        $delete_btn = '<input type="radio" value="'.$identifiedfile->id.'" checked="1" name="id"';
+        $delete_btn .= ' id="'.$identifiedfile->id.'" value="'.$identifiedfile->id.'"';
+        $delete_btn .= ' style="display:none;">';
+        $delete_btn .= '<button type="submit" class="btn btn-xs btn-danger">';
+        $delete_btn .= '<i class="fa fa-trash"></i> ';
+        $delete_btn .= '</button>';
+
+
+        // if this identification record has cite text show the button show action
+        if ($identifiedfile->cite) {
+            $show_cite_btn = ' <a href="#" onclick="$(\'#identified_'.$identifiedfile->id.'_cite_cell\').toggle();return false;"';
+            $show_cite_btn .= ' class="btn btn-xs btn-primary" style="margin-right:5px;" title="'.get_string('resource_cite', 'block_course_files_license').'">';
+            $show_cite_btn .= '<i class="fa fa-pencil"></i> '.get_string('show_cite','block_course_files_license').'</a>';
+
+            $form_actions .= $show_cite_btn . ' ';
+        }
+        $form_actions .= $delete_btn;
+        $form_actions .= '</form>';
+
+        $cell_actions = new html_table_cell();
+        $cell_actions->style = 'text-align:right;';
+        $cell_actions->text = $form_actions;
+        $row->cells[] = $cell_actions;
+
+        // add the row with the identified file
         $identified_table->data[] = $row;
+
+        // if this identification record has cite text we have to show the text in new row
+        if ($identifiedfile->cite) {
+            $row_cite = new html_table_row();
+            $cell_cite = new html_table_cell();
+            $cell_cite->colspan = 10;
+            $cell_cite->id = 'identified_' . $identifiedfile->id . '_cite_cell';
+            $cell_cite->style = 'display:none;padding-bottom:30px;';
+            $cell_cite->text = $identifiedfile->cite;
+            $row_cite->cells[] = $cell_cite;
+            $identified_table->data[] = $row_cite;
+        }
     }
 }
 
 echo $OUTPUT->header();
 echo $OUTPUT->heading($course->fullname);
-//echo $OUTPUT->heading(get_string('totalfilesize', 'block_course_files_license', display_size($sizetotal)), 3, 'main');
 
 if ($coursefilelist) {
     echo '<p class="text-justify">';
-    //it is possible to override default information text by setting CFG->licensefilestextinfo 
-    if (isset($CFG->licensefilestextinfo)){
-        echo $CFG->licensefilestextinfo;
+    if (isset($CFG->block_course_files_license_info)){
+        echo $CFG->block_course_files_license_info;
+
+        if ($licenses) {
+            echo '<ul>';
+            foreach ($licenses as $l) {
+                echo '<li>' . $l->description . '</li>';
+            }
+            echo '</ul>';
+        } else {
+            
+        }
     } else {
         echo get_string('explanationmessage', 'block_course_files_license');
     }
@@ -317,7 +290,7 @@ if ($coursefilelist) {
     echo '<div class="alert alert-success" role="alert"><i class="fa fa-thumbs-o-up"></i> '.get_string('all_files_identified', 'block_course_files_license').'</div>';
 }
 
-if ($identifiedcoursefilelist) {
+if ($identifiedfileslist) {
     echo $OUTPUT->heading(get_string('identified_course_files', 'block_course_files_license'), 3, 'main');
     echo html_writer::table($identified_table);
 }
