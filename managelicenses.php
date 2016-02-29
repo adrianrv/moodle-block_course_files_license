@@ -74,19 +74,21 @@ if ($deletelicenseid && confirm_sesskey()) {
 // Display the list of licenses.
 $licenses = $DB->get_records('block_course_files_license_l', null, $sort='sortorder');
 
-$strmanage = get_string('managelicenses', 'block_course_files_license');
+$strtitle = get_string('managelicenses', 'block_course_files_license');
 
-$PAGE->set_pagelayout('standard');
-$PAGE->set_title($strmanage);
-$PAGE->set_heading($strmanage);
+$PAGE->set_pagelayout('admin');
+$PAGE->set_title($strtitle);
+$PAGE->set_heading($strtitle);
 
 $managelicenses = new moodle_url('/blocks/course_files_license/managelicenses.php', $urlparams);
 $urlparams_settings = array('section' => 'blocksettingcourse_files_license');
 $settingslicenses = new moodle_url('/admin/settings.php?section=blocksettingcourse_files_license');
 $PAGE->navbar->add(get_string('blocks'));
 $PAGE->navbar->add(get_string('pluginname', 'block_course_files_license'), $settingslicenses);
-$PAGE->navbar->add(get_string('managelicenses', 'block_course_files_license'), $managelicenses);
+$PAGE->navbar->add(get_string('managelicenses', 'block_course_files_license'), $managelicenses );
+
 echo $OUTPUT->header();
+echo $OUTPUT->heading($strtitle, 2);
 
 $table = new flexible_table('license-display');
 

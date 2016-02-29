@@ -33,6 +33,9 @@ if ($ADMIN->fulltree) {
     $settings->add(new admin_setting_configcheckbox('block_course_files_license_popup', new lang_string('popup', 'block_course_files_license'),
         new lang_string('popupconfig', 'block_course_files_license'), 1));
 
+    $settings->add(new admin_setting_configtextarea('block_course_files_license_info', new lang_string('license_instructions', 'block_course_files_license'),
+        new lang_string('license_instructions_desc', 'block_course_files_license'), new lang_string('license_instructions_default', 'block_course_files_license')));
+
     $link_manage_licenses ='<a href="'.$CFG->wwwroot.'/blocks/course_files_license/managelicenses.php">'.get_string('managelicenses', 'block_course_files_license').'</a>';
     $settings->add(new admin_setting_heading('course_files_license_manage_licenses', '', $link_manage_licenses));
 

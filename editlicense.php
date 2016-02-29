@@ -124,7 +124,6 @@ if ($mform->is_cancelled()) {
     redirect($managelicenses);
 
 } else {
-    echo '<pre>Tercera</pre>';
     if ($isadding) {
         $strtitle = get_string('addnewlicense', 'block_course_files_license');
     } else {
@@ -146,4 +145,3 @@ if ($mform->is_cancelled()) {
 
     echo $OUTPUT->footer();
 }
-

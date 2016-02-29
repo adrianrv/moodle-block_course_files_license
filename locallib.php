@@ -53,7 +53,7 @@ function get_course_files_list($limit=0) {
     $contextcheck = $context->path . '/%';
 
     // Get the files used on the course that are not already identified.
-    $sql = "SELECT 
+    $sql = "SELECT
                 id, contenthash, userid, author, filesize, filename,
                 itemid, component, filearea, filepath, timecreated,
                 contextid, contextlevel, instanceid, path, depth
@@ -111,7 +111,7 @@ function get_identified_course_files_list($limit=0) {
 //Get identified course files that have been deleted from the course
 function delete_unavailable_files($limit=0) {
     global $DB;
-    
+
     $sql = "SELECT *
             FROM {block_course_files_license_f}
             where resourceid not in (SELECT id FROM {files})";
@@ -139,30 +139,16 @@ function block_course_files_license_get_total_filesize() {
     return $sizetotal;
 }
 
-function block_course_files_license_get_all_courses($ownwork, $copyright, $authorized) {
+function get_all_courses($license) {
+
+    $extensions = '';
+    if (isset($CFG->block_course_files_license_extensions)) {
+        $extensions = explode(',', $CFG->block_course_files_license_extensions);
+    }
 
     $filter_condition = "";
-    if (($ownwork != NULL) || ($copyright != NULL) || ($authorized != NULL)) {
-        $filter_condition = " AND (";
-    }
-    
-    if ($ownwork != NULL) {
-        $filter_condition .= "fl.ownwork=".$ownwork;
-    }
-    
-    if (($ownwork != NULL) && ($copyright != NULL)) {
-        $filter_condition .= " AND fl.copyright=".$copyright;
-    } elseif ($copyright != NULL) {
-        $filter_condition .= "fl.copyright=".$copyright;
-    }
-
-    if ((($copyright != NULL) && ($authorized != NULL)) || (($ownwork != NULL) && ($authorized != NULL))) {
-        $filter_condition .= " AND fl.authorized=".$authorized;
-    } elseif ($authorized != NULL) {
-        $filter_condition .= "fl.authorized=".$authorized;
-    }
-    if (($ownwork != NULL) || ($copyright != NULL) || ($authorized != NULL)) {
-        $filter_condition .= ')';
+    if ($license != NULL) {
+        $filter_condition = " AND (fl.license=" . $license .") ";
     }
 
     global $CFG, $DB;
@@ -181,18 +167,19 @@ function block_course_files_license_get_all_courses($ownwork, $copyright, $autho
         $sql .= $filter_condition;
     }
 
-    if ($CFG->licensefilesextensions != null ) {
+    if ($extensions != null ) {
         $sql .= " AND (";
-    }
-    $extensions_len = count($CFG->licensefilesextensions);
-    $i = 0;
-    foreach ($CFG->licensefilesextensions as $ext) {
-        $sql .= " f.filename LIKE '%".$ext."'";
-        $i++;
-        if ($i < $extensions_len) {
-            $sql .= " OR";
-        } else {
-            $sql .= ") ";
+
+        $extensions_len = count($extensions);
+        $i = 0;
+        foreach ($extensions as $ext) {
+            $sql .= " f.filename LIKE '%".$ext."'";
+            $i++;
+            if ($i < $extensions_len) {
+                $sql .= " OR";
+            } else {
+                $sql .= ") ";
+            }
         }
     }
     $sql .= "GROUP BY cm.course, c.fullname ORDER BY c.fullname";

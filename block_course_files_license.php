@@ -88,10 +88,10 @@ class block_course_files_license extends block_base {
         // Get the top file files used on the course by size.
         $filelist = get_course_files_list();
         if ($filelist) {
-            if (!isset($CFG->licensefilesmodal)) {
-                $CFG->licensefilesmodal = false;
+            if (!isset($CFG->block_course_files_license_popup)) {
+                $CFG->block_course_files_license_popup = false;
             }
-            if ($CFG->licensefilesmodal == true) {
+            if ($CFG->block_course_files_license_popup == true) {
                 $this->content->text .= '<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.min.js"></script>';
                 $this->content->text .= '<script type="text/javascript">';
                 $this->content->text .= '        $(document).ready(function() {';

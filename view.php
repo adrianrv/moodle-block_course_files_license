@@ -70,7 +70,7 @@ if ($_POST) {
     require_capability('block/course_files_license:addinstance', $context);
     foreach ($_POST as $resource_id => $resource_values) {
         // We will look only in items received with at least 'license' key
-        if (in_array('license', array_keys($resource_values))) { 
+        if (in_array('license', array_keys($resource_values))) {
 
             // Now we need to verify if the received item has a valid file instances asociated
             if (in_array($resource_id, $file_instances)) {
@@ -128,7 +128,11 @@ foreach ($licenses as $l) {
     $header .= '</div>';
     array_push($table->head, $header);
 }
-array_push($table->head, get_string('operations', 'block_course_files_license'));
+
+$operations_header = '<div style="width:100%;text-align:center;">';
+$operations_header .= get_string('operations', 'block_course_files_license');
+$operations_header .= '</div>';
+array_push($table->head, $operations_header);
 
 foreach ($coursefilelist as $coursefile) {
 
@@ -138,7 +142,7 @@ foreach ($coursefilelist as $coursefile) {
     $cite_cell = '<textarea class="form-control" rows=3" id="'.$courseid.'_'.$coursefile->id.'_cite" name="'.$coursefile->id.'[cite]" placeholder="'.get_string('resource_cite', 'block_course_files_license').'" style="margin-bottom:20px;"></textarea>';
 
     $operations_cell  = '<a href="#" onclick="';
-    
+
     foreach ($licenses as $l) {
         $operations_cell .= ' $(\'#'.$courseid.'_'.$coursefile->id.'_'.$l->id.'\').prop(\'checked\', false);';
     }
@@ -162,12 +166,12 @@ foreach ($coursefilelist as $coursefile) {
         $new_cell .= ' id="'.$courseid.'_'.$coursefile->id.'_'.$l->id.'"';
         $new_cell .= ' value="'.$l->id.'" title="'.$l->name.'"> ';
         $new_cell .= '</div>';
-        $row->cells[] = $new_cell; 
+        $row->cells[] = $new_cell;
     }
 
     $row->cells[] = $operations_cell;
     $table->data[] = $row;
-    
+
     // license cite text area (optional)
     $row = new html_table_row();
     $cell_cite = new html_table_cell();
@@ -180,13 +184,6 @@ foreach ($coursefilelist as $coursefile) {
 }
 
 if ($identifiedfileslist) {
-
-    //echo '<h1>identifiedfileslist</h1>';
-    //echo '<pre>';
-    //print_r($identifiedfileslist);
-    //echo '</pre>';
-
-
     $identified_table = new html_table();
     $identified_table->attributes = array('style' => 'font-size: 80%;');
     $identified_table->head = array(
@@ -196,9 +193,13 @@ if ($identifiedfileslist) {
         get_string('copyright', 'block_course_files_license'),
         get_string('timeidentified', 'block_course_files_license'),
         get_string('identified_by', 'block_course_files_license'),
-        get_string('operations', 'block_course_files_license')
     );
-    
+
+    $operations_header = '<div style="width:100%;text-align:right;">';
+    $operations_header .= get_string('operations', 'block_course_files_license');
+    $operations_header .= '</div>';
+    array_push($identified_table->head, $operations_header);
+
     foreach ($identifiedfileslist as $identifiedfile_id=>$identifiedfile) {
         $row = new html_table_row();
         $row->cells[] = date('d/m/y', $identifiedfile->timeuploaded);
@@ -213,7 +214,7 @@ if ($identifiedfileslist) {
         $row->cells[] = $uploaded_by_user->firstname.' '.$uploaded_by_user->lastname;
 
         $form_actions  = '<form action="'.new moodle_url('/blocks/course_files_license/delete.php?courseid='.$courseid).'" method="POST">';
-        
+
         $delete_btn = '<input type="radio" value="'.$identifiedfile->id.'" checked="1" name="id"';
         $delete_btn .= ' id="'.$identifiedfile->id.'" value="'.$identifiedfile->id.'"';
         $delete_btn .= ' style="display:none;">';
@@ -260,7 +261,7 @@ echo $OUTPUT->heading($course->fullname);
 
 if ($coursefilelist) {
     echo '<p class="text-justify">';
-    if (isset($CFG->block_course_files_license_info)){
+    if (isset($CFG->block_course_files_license_info) && $CFG->block_course_files_license_info != ''){
         echo $CFG->block_course_files_license_info;
 
         if ($licenses) {
@@ -270,7 +271,7 @@ if ($coursefilelist) {
             }
             echo '</ul>';
         } else {
-            
+
         }
     } else {
         echo get_string('explanationmessage', 'block_course_files_license');
