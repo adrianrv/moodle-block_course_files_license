@@ -66,6 +66,7 @@ function get_course_files_list($limit=0) {
                 JOIN {context} ctx ON f.contextid = ctx.id
                 WHERE ".$DB->sql_concat('ctx.path', "'/'")." LIKE ?
                 AND f.filename <> '.'
+                AND f.filearea <> 'feedback_files'
                 AND f.filearea <> 'submission_files'
                 AND f.component NOT IN ('private','draft')
                 AND f.id not in (SELECT resourceid
@@ -140,6 +141,7 @@ function block_course_files_license_get_total_filesize() {
 }
 
 function get_all_courses($license) {
+    global $CFG, $DB;
 
     $extensions = '';
     if (isset($CFG->block_course_files_license_extensions)) {
@@ -151,8 +153,6 @@ function get_all_courses($license) {
         $filter_condition = " AND (fl.license=" . $license .") ";
     }
 
-    global $CFG, $DB;
-
     $sql = "SELECT cm.course as courseid, c.fullname as name, count(distinct(f.id)) as num_files, count(distinct(fl.id)) as identified_files
             FROM {files} f
             JOIN {context} cx ON f.contextid = cx.id
@@ -160,8 +160,10 @@ function get_all_courses($license) {
             JOIN {course} c ON cm.course=c.id
             LEFT OUTER JOIN {block_course_files_license_f} fl ON c.id=fl.courseid
             WHERE
+            f.filename <> '.' AND
+            f.filearea <> 'feedback_files' AND
             f.filearea <> 'submission_files' AND
-            f.filename <> '.'";
+            f.component NOT IN ('private','draft')";
 
     if ($filter_condition != "") {
         $sql .= $filter_condition;

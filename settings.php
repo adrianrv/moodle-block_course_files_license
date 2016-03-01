@@ -31,7 +31,7 @@ if ($ADMIN->fulltree) {
         get_string('extensionsconfig', 'block_course_files_license'), 'pdf, odt, doc, docx, xls, xlsx', PARAM_TEXT));
 
     $settings->add(new admin_setting_configcheckbox('block_course_files_license_popup', new lang_string('popup', 'block_course_files_license'),
-        new lang_string('popupconfig', 'block_course_files_license'), 1));
+        new lang_string('popupconfig', 'block_course_files_license'), 0));
 
     $settings->add(new admin_setting_configtextarea('block_course_files_license_info', new lang_string('license_instructions', 'block_course_files_license'),
         new lang_string('license_instructions_desc', 'block_course_files_license'), new lang_string('license_instructions_default', 'block_course_files_license')));
