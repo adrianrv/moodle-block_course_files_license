@@ -79,7 +79,7 @@ function get_course_files_list($limit=0) {
     $extensions_len = count($extensions);
     $i = 0;
     foreach ($extensions as $ext) {
-        $sql .= " f.filename LIKE '%".$ext."'";
+        $sql .= " f.filename LIKE '%".trim($ext)."'";
         $i++;
         if ($i < $extensions_len) {
             $sql .= " OR";
@@ -140,7 +140,7 @@ function block_course_files_license_get_total_filesize() {
     return $sizetotal;
 }
 
-function get_all_courses($license) {
+function get_all_courses($license, $course_code) {
     global $CFG, $DB;
 
     $extensions = '';
@@ -152,6 +152,10 @@ function get_all_courses($license) {
     if ($license != NULL) {
         $filter_condition = " AND (fl.license=" . $license .") ";
     }
+    if ($course_code != NULL) {
+        $filter_condition = " AND (c.idnumber LIKE '%" . $course_code ."%') ";
+    }
+
 
     $sql = "SELECT cm.course as courseid, c.fullname as name, count(distinct(f.id)) as num_files, count(distinct(fl.id)) as identified_files
             FROM {files} f
@@ -175,7 +179,7 @@ function get_all_courses($license) {
         $extensions_len = count($extensions);
         $i = 0;
         foreach ($extensions as $ext) {
-            $sql .= " f.filename LIKE '%".$ext."'";
+            $sql .= " f.filename LIKE '%".trim($ext)."'";
             $i++;
             if ($i < $extensions_len) {
                 $sql .= " OR";

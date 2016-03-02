@@ -157,7 +157,12 @@ foreach ($coursefilelist as $coursefile) {
     $row = new html_table_row();
     $row->cells[] = date('d/m/y', $coursefile->timecreated);
     $row->cells[] = $filename_cell;
-    $row->cells[] = $coursefile->author;
+    if ($coursefile->author) {
+        $row->cells[] = $coursefile->author;
+    } else {
+        $row->cells[] = get_string('unknown' ,'block_course_files_license');
+    }
+
 
     foreach ($licenses as $l) {
         $new_cell  = '<div style="width:100%;text-align:center">';
