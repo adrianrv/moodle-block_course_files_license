@@ -104,3 +104,5 @@ $string['license_instructions'] = 'Instructions';
 $string['license_instructions_desc'] = 'This text will appear at the top of the resource identification area';
 $string['license_instructions_default'] = 'Select a license bellow:';
 $string['no_results'] = 'There are no courses with resources matching the selected license.';
+$string['delete_all_records'] = 'Delete all records';
+$string['confirm_delete_all_records'] = 'Are you sure you want to delete all identified file records?<br><br>The files will not be deleted.';

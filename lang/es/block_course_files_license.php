@@ -104,3 +104,5 @@ $string['license_instructions'] = 'Instrucciones';
 $string['license_instructions_desc'] = 'Este texto aparecerá en la parte superior de la vista de identificación de ficheros.';
 $string['license_instructions_default'] = 'Selecciona una licencia para cada fichero a continuación:';
 $string['no_results'] = 'No se han encontrado cursos con recursos que cumplan la licencia seleccionada.';
+$string['delete_all_records'] = 'Borrar todos los registros';
+$string['confirm_delete_all_records'] = '¿Estás seguro de querer eliminar todos los registros de ficheros identificados?<br><br>Los ficheros no serán borrados.';

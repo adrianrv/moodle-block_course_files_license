@@ -212,7 +212,11 @@ if ($identifiedfileslist) {
         $filename_cell .= $identifiedfile->resource_name.'</a>';
         $filename_cell .= ' ('.display_size($identifiedfile->resource_size).')';
         $row->cells[] = $filename_cell;
-        $row->cells[] = $identifiedfile->uploaded_by;
+        if ($identifiedfile->uploaded_by) {
+            $row->cells[] = $identifiedfile->uploaded_by;
+        } else {
+            $row->cells[] = get_string('unknown', 'block_course_files_license');
+        }
         $row->cells[] = $licenses[$identifiedfile->license]->name;
         $row->cells[] = date('d/m/y', $identifiedfile->timeidentified);
         $uploaded_by_user = $DB->get_record('user', array('id' => $identifiedfile->userid));
@@ -284,7 +288,7 @@ if ($coursefilelist) {
     echo '</p>';
 
     echo $OUTPUT->heading(get_string('not_identified_course_files', 'block_course_files_license'), 3, 'main');
-    echo '<form action="'.$_SERVER['PHP_SELF'].'?courseid='.$courseid.'" method="POST">';
+    echo '<form action="' . $_SERVER['PHP_SELF'] . '?courseid='.$courseid.'" method="POST">';
     echo html_writer::table($table);
     echo '<p class="text-center">';
     echo '<button type="submit" class="btn btn-success btn-sm"><i class="fa fa-check-square-o"></i> ';
@@ -299,6 +303,17 @@ if ($coursefilelist) {
 if ($identifiedfileslist) {
     echo $OUTPUT->heading(get_string('identified_course_files', 'block_course_files_license'), 3, 'main');
     echo html_writer::table($identified_table);
+
+    $action = new confirm_action(get_string('confirm_delete_all_records', 'block_course_files_license'), 'openpopup');
+    $action->jsfunctionargs['callbackargs'] = array(
+        null,   // Always null in this case
+        array(  // An array of args to pass to the callback function
+            'url'=>$PAGE->url->out(false, array('confirmed'=>'true'))
+        )
+    );
+    $button = new single_button(new moodle_url('/blocks/course_files_license/delete.php', array('courseid' => $courseid, 'all' => 'true'), array('class'=>'btn btn-sm btn-danger')), get_string('delete_all_records', 'block_course_files_license'));
+    $button->add_action($action);
+    echo '<div style="width:100%;text-align:center;">' . $OUTPUT->render($button) . '</div>';
 }
 
 echo $OUTPUT->footer();

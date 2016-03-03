@@ -43,11 +43,14 @@ foreach ($identifiedcoursefilelist as $f_id => $f_value) {
 
 if ($_POST) {
     require_capability('block/course_files_license:deleteinstance', $context);
-    if (in_array('id', array_keys($_POST))) {
+    if (in_array('all', array_keys($_POST))) {
+        if ($_POST['all'] == true){
+            $DB->delete_records('block_course_files_license_f', array ('courseid'=>$_POST['courseid']));
+        }
+    } elseif(in_array('id', array_keys($_POST))) {
         $DB->delete_records('block_course_files_license_f', array ('id'=>$_POST['id']));
     }
 }
 
 $view_url = new moodle_url('/blocks/course_files_license/view.php', array('courseid' => $courseid));
 redirect($view_url);
-
