@@ -124,8 +124,8 @@ class block_course_files_license extends block_base {
             $this->content->text .= '<i class="fa fa-exclamation-triangle"></i> ';
             $this->content->text .= get_string('filelist', 'block_course_files_license').'</a>';
         } else {
-            $this->content->text = '<p class="justify">'.get_string('all_files_identified', 'block_course_files_license').'</p>';
-            $this->content->text = '<a class="btn btn-block btn-success btn-sm" href="';
+            $this->content->text .= '<p class="justify">'.get_string('all_files_identified', 'block_course_files_license').'</p>';
+            $this->content->text .= '<a class="btn btn-block btn-success btn-sm" href="';
             $this->content->text .= new moodle_url('/blocks/course_files_license/view.php', array('courseid' => $COURSE->id)).'">';
             $this->content->text .= '<i class="fa fa-info-circle"></i> ';
             $this->content->text .= get_string('filelist', 'block_course_files_license').'</a>';
