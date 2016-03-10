@@ -66,8 +66,7 @@ function get_course_files_list($limit=0) {
                 JOIN {context} ctx ON f.contextid = ctx.id
                 WHERE ".$DB->sql_concat('ctx.path', "'/'")." LIKE ?
                 AND f.filename <> '.'
-                AND f.filearea <> 'feedback_files'
-                AND f.filearea <> 'submission_files'
+                AND f.filearea = 'content'
                 AND f.component NOT IN ('private','draft')
                 AND f.id not in (SELECT resourceid
                                        FROM {block_course_files_license_f}
