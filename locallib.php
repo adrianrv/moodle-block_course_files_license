@@ -155,7 +155,6 @@ function get_all_courses($license, $course_code) {
         $filter_condition = " AND (c.idnumber LIKE '%" . $course_code ."%') ";
     }
 
-
     $sql = "SELECT cm.course as courseid, c.fullname as name, count(distinct(f.id)) as num_files, count(distinct(fl.id)) as identified_files
             FROM {files} f
             JOIN {context} cx ON f.contextid = cx.id
@@ -163,6 +162,13 @@ function get_all_courses($license, $course_code) {
             JOIN {course} c ON cm.course=c.id
             LEFT OUTER JOIN {block_course_files_license_f} fl ON c.id=fl.courseid
             WHERE
+            c.id IN (SELECT id
+                     FROM {course}
+                     WHERE id IN (SELECT instanceid
+                                  FROM {context}
+                                  WHERE id IN (SELECT parentcontextid
+                                               FROM {block_instances}
+                                               WHERE blockname='course_files_license'))) AND
             f.filename <> '.' AND
             f.filearea <> 'feedback_files' AND
             f.filearea <> 'submission_files' AND
