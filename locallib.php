@@ -170,8 +170,7 @@ function get_all_courses($license, $course_code) {
                                                FROM {block_instances}
                                                WHERE blockname='course_files_license'))) AND
             f.filename <> '.' AND
-            f.filearea <> 'feedback_files' AND
-            f.filearea <> 'submission_files' AND
+            f.filearea = 'content' AND
             f.component NOT IN ('private','draft')";
 
     if ($filter_condition != "") {
